@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up - AutoAssist</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css" integrity="sha512-/Yt3FTyr5HGwYjvhmEVvMrHT5Lra9el3o5RZBF0+kKBlN2SESHoUZ9D9n5/jINbSFCz2YXo0yPYdkRjM9KpM1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #3ce0aa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .signup-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      width: 360px;
+    }
+
+    .signup-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #444;
+    }
+
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .phone-input {
+      display: flex;
+      gap: 8px;
+    }
+
+    .phone-input select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      flex: 0 0 30%;
+    }
+
+    .phone-input input {
+      flex: 1;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #3ce0aa;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background-color: #34c398;
+    }
+
+    .social-btn {
+      background-color: #4267B2;
+      margin-top: 10px;
+    }
+
+    .signin-link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .signin-link a {
+      color: #3ce0aa;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <h2>Create Account</h2>
+
+    <div class="input-group">
+      <label for="phone">Phone Number</label>
+      <div class="phone-input">
+        <select id="country">
+          <option value="ke" selected>🇰🇪 +254</option>
+          <option value="us">🇺🇸 +1</option>
+          <option value="gb">🇬🇧 +44</option>
+          <option value="ng">🇳🇬 +234</option>
+        </select>
+        <input type="text" id="phone" placeholder="712345678" />
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com" />
+    </div>
+
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="********" />
+    </div>
+
+    <button class="btn">Sign Up</button>
+    <button class="btn social-btn">Continue with Facebook</button>
+
+    <div class="signin-link">
+      Already have an account? <a href="LogIn.html">Sign In</a>
+    </div>
+  </div>
+</body>
+</html>
