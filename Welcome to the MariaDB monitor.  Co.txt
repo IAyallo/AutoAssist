@@ -1,0 +1,99 @@
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 4
+Server version: 11.6.2-MariaDB mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [webdev]> show tables;
++------------------+
+| Tables_in_webdev |
++------------------+
+| garages          |
+| mechanics        |
+| payments         |
+| ratings          |
+| servicerequests  |
+| users            |
++------------------+
+6 rows in set (0.001 sec)
+
+MariaDB [webdev]> desc garages;
++------------------+--------------+------+-----+---------+----------------+
+| Field            | Type         | Null | Key | Default | Extra          |
++------------------+--------------+------+-----+---------+----------------+
+| garagae_id       | int(11)      | NO   | PRI | NULL    | auto_increment |
+| user_id          | int(11)      | YES  | UNI | NULL    |                |
+| garage_name      | varchar(100) | NO   |     | NULL    |                |
+| location         | varchar(150) | NO   |     | NULL    |                |
+| services_offered | text         | YES  |     | NULL    |                |
++------------------+--------------+------+-----+---------+----------------+
+5 rows in set (0.047 sec)
+
+MariaDB [webdev]> desc meachanics;
+ERROR 1146 (42S02): Table 'webdev.meachanics' doesn't exist
+MariaDB [webdev]> desc mechanics;
++---------------------+---------------------------------+------+-----+-----------+-------+
+| Field               | Type                            | Null | Key | Default   | Extra |
++---------------------+---------------------------------+------+-----+-----------+-------+
+| mechanic_id         | int(11)                         | NO   | PRI | NULL      |       |
+| user_id             | int(11)                         | YES  | UNI | NULL      |       |
+| garage_name         | varchar(100)                    | YES  |     | NULL      |       |
+| location            | varchar(150)                    | YES  |     | NULL      |       |
+| availability_status | enum('available','unavailable') | YES  |     | available |       |
++---------------------+---------------------------------+------+-----+-----------+-------+
+5 rows in set (0.025 sec)
+
+MariaDB [webdev]> desc payments;
++----------------+---------------+------+-----+---------------------+----------------+
+| Field          | Type          | Null | Key | Default             | Extra          |
++----------------+---------------+------+-----+---------------------+----------------+
+| payment_id     | int(11)       | NO   | PRI | NULL                | auto_increment |
+| request_id     | int(11)       | NO   | MUL | NULL                |                |
+| amount_paid    | decimal(10,2) | NO   |     | NULL                |                |
+| payment_method | varchar(50)   | NO   |     | NULL                |                |
+| payment_time   | timestamp     | YES  |     | current_timestamp() |                |
++----------------+---------------+------+-----+---------------------+----------------+
+5 rows in set (0.044 sec)
+
+MariaDB [webdev]> desc ratings;
++--------------+---------+------+-----+---------+----------------+
+| Field        | Type    | Null | Key | Default | Extra          |
++--------------+---------+------+-----+---------+----------------+
+| rating_id    | int(11) | NO   | PRI | NULL    | auto_increment |
+| user_id      | int(11) | NO   | MUL | NULL    |                |
+| mechanic_id  | int(11) | NO   | MUL | NULL    |                |
+| rating       | int(11) | YES  |     | NULL    |                |
+| user_comment | text    | YES  |     | NULL    |                |
++--------------+---------+------+-----+---------+----------------+
+5 rows in set (0.039 sec)
+
+MariaDB [webdev]> desc service requests;
+ERROR 1146 (42S02): Table 'webdev.service' doesn't exist
+MariaDB [webdev]> desc servicerequests;
++--------------+------------------------------------------------------------------+------+-----+---------------------+----------------+
+| Field        | Type                                                             | Null | Key | Default             | Extra          |
++--------------+------------------------------------------------------------------+------+-----+---------------------+----------------+
+| request_id   | int(11)                                                          | NO   | PRI | NULL                | auto_increment |
+| user_id      | int(11)                                                          | NO   | MUL | NULL                |                |
+| mechanic_id  | int(11)                                                          | NO   | MUL | NULL                |                |
+| service_type | varchar(100)                                                     | NO   |     | NULL                |                |
+| status       | enum('pending','accepted','in_progress','completed','cancelled') | YES  |     | pending             |                |
+| request_time | timestamp                                                        | YES  |     | current_timestamp() |                |
++--------------+------------------------------------------------------------------+------+-----+---------------------+----------------+
+6 rows in set (0.044 sec)
+
+MariaDB [webdev]> desc users;
++---------------+------------------------------+------+-----+---------+----------------+
+| Field         | Type                         | Null | Key | Default | Extra          |
++---------------+------------------------------+------+-----+---------+----------------+
+| User_id       | int(11)                      | NO   | PRI | NULL    | auto_increment |
+| name          | varchar(100)                 | NO   |     | NULL    |                |
+| phone_number  | varchar(20)                  | NO   | UNI | NULL    |                |
+| password_hash | varchar(255)                 | NO   |     | NULL    |                |
+| role          | enum('car_owner','mechanic') | NO   |     | NULL    |                |
++---------------+------------------------------+------+-----+---------+----------------+
+5 rows in set (0.024 sec)
+
+MariaDB [webdev]>
