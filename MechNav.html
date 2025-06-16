@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mechanic Navigation</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #map {
+      height: 50%;
+    }
+
+    .info-section {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      background-color: #f8f8f8;
+      flex: 1;
+    }
+
+    .details {
+      margin-bottom: 20px;
+    }
+
+    .details h2 {
+      margin: 0 0 10px 0;
+      color: #333;
+    }
+
+    .chatbox {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background: #fff;
+    }
+
+    .message {
+      margin: 8px 0;
+      max-width: 70%;
+      padding: 8px 12px;
+      border-radius: 16px;
+      clear: both;
+    }
+
+    .mechanic {
+      background-color: #3ce0aa;
+      color: white;
+      align-self: flex-end;
+      float: right;
+    }
+
+    .customer {
+      background-color: #eee;
+      color: #333;
+      align-self: flex-start;
+      float: left;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+    }
+
+    .chat-input button {
+      background-color: #3ce0aa;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .actions button {
+      flex: 1;
+      margin: 0 5px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .call-btn {
+      background-color: #3ce0aa;
+      color: white;
+    }
+
+    .start-btn {
+      background-color: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="info-section">
+    <div class="details">
+      <h2>Navigating to Jane Mwikali</h2>
+      <p><strong>From:</strong> Israel Mshindi (Kibera)</p>
+      <p><strong>To:</strong> Jane Mwikali (Ngong Road)</p>
+      <p><strong>Estimated Time:</strong> <span id="eta">Calculating...</span></p>
+    </div>
+
+    <div class="chatbox">
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" id="chat-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="call-btn" onclick="alert('Calling Jane Mwikali...')">📞 Call</button>
+      <button class="start-btn" id="start-btn" onclick="startService()" disabled>Start Service</button>
+    </div>
+  </div>
+
+  <script>
+    const mechanicLatLng = [ -1.3133, 36.8025 ]; // Kibera
+    const customerLatLng = [ -1.3000, 36.7820 ]; // Ngong Road
+
+    const map = L.map('map').setView(mechanicLatLng, 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const routingControl = L.Routing.control({
+      waypoints: [
+        L.latLng(mechanicLatLng[0], mechanicLatLng[1]),
+        L.latLng(customerLatLng[0], customerLatLng[1])
+      ],
+      lineOptions: {
+        styles: [{ color: '#3ce0aa', weight: 6 }]
+      },
+      routeWhileDragging: false,
+      draggableWaypoints: false,
+      addWaypoints: false,
+      show: false
+    }).addTo(map);
+
+    // Simulate ETA
+    const distance = 6.2; // km
+    const speed = 20; // km/h
+    const etaMinutes = Math.round((distance / speed) * 60);
+    document.getElementById("eta").textContent = etaMinutes + " mins";
+
+    // Enable start button if mechanic is "close"
+    setTimeout(() => {
+      document.getElementById("start-btn").disabled = false;
+    }, 3000);
+
+    function startService() {
+      alert("Service started. Redirecting...");
+      window.location.href = "Progress.html";
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("chat-input");
+      const message = input.value.trim();
+      if (message === "") return;
+
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "message mechanic";
+      messageDiv.textContent = "Israel Mshindi: " + message;
+
+      document.getElementById("chat-messages").appendChild(messageDiv);
+      input.value = "";
+      document.getElementById("chat-messages").scrollTop = document.getElementById("chat-messages").scrollHeight;
+    }
+  </script>
+</body>
+</html>

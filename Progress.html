@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Service In Progress</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      color: #333;
+    }
+
+    h1 {
+      color: #3ce0aa;
+    }
+
+    .car-model {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+    }
+
+    .progress-container {
+      width: 80%;
+      background-color: #ddd;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      height: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #3ce0aa, #34c99a);
+      border-radius: 20px 0 0 20px;
+      transition: width 0.3s ease;
+    }
+
+    .time-remaining {
+      font-size: 1em;
+      margin-bottom: 30px;
+      color: #555;
+    }
+
+    .complete-btn {
+      background-color: #3ce0aa;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1em;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .complete-btn:hover {
+      background-color: #34c99a;
+    }
+  </style>
+</head>
+<body>
+  <h1>Carrying out: Battery Replacement </h1>
+  <div class="car-model">Vehicle: Toyota Premio</div>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+
+  <div class="time-remaining" id="time-remaining">Estimated time remaining: 5:00</div>
+
+  <button class="complete-btn" onclick="completeService()">Complete Service</button>
+
+  <script>
+    let progress = 0;
+    let totalSeconds = 300; // 5 minutes
+
+    function updateProgress() {
+      if (progress >= 100) return;
+      progress += 1;
+      const bar = document.getElementById('progress-bar');
+      bar.style.width = progress + '%';
+
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      document.getElementById('time-remaining').textContent = `Estimated time remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+      totalSeconds--;
+      if (totalSeconds <= 0) {
+        document.getElementById('time-remaining').textContent = "Almost done!";
+      }
+    }
+
+    function completeService() {
+      alert("Service completed successfully!");
+      window.location.href = "PayConfirm.html";
+    }
+
+    setInterval(() => {
+      if (progress < 100 && totalSeconds >= 0) {
+        updateProgress();
+      }
+    }, 1500);
+  </script>
+</body>
+</html>

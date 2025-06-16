@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up As Mechanic- AutoAssist</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css" integrity="sha512-/Yt3FTyr5HGwYjvhmEVvMrHT5Lra9el3o5RZBF0+kKBlN2SESHoUZ9D9n5/jINbSFCz2YXo0yPYdkRjM9KpM1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #3ce0aa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .signup-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      width: 360px;
+    }
+
+    .signup-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #444;
+    }
+
+    input[type="text"], input[type="email"], input[type="password"], select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .phone-input {
+      display: flex;
+      gap: 8px;
+    }
+
+    .phone-input select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      flex: 0 0 30%;
+    }
+
+    .phone-input input {
+      flex: 1;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #3ce0aa;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+
+    .btn:disabled {
+      background-color: #b2e5d2;
+      cursor: not-allowed;
+    }
+
+    .btn:hover:enabled {
+      background-color: #34c398;
+    }
+
+    .social-btn {
+      background-color: #4267B2;
+      margin-top: 10px;
+    }
+
+    .signin-link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .signin-link a {
+      color: #3ce0aa;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <h2>Create Account</h2>
+
+    <div class="input-group">
+      <label for="phone">Phone Number</label>
+      <div class="phone-input">
+        <select id="country">
+          <option value="ke" selected>🇰🇪 +254</option>
+          <option value="us">🇺🇸 +1</option>
+          <option value="gb">🇬🇧 +44</option>
+          <option value="ng">🇳🇬 +234</option>
+        </select>
+        <input type="text" id="phone" placeholder="712345678" />
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com" />
+    </div>
+
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="********" />
+    </div>
+
+    <div class="input-group">
+      <label for="county">Locality (County)</label>
+      <select id="county" required>
+        <option value="">-- Select County --</option>
+        <option value="Baringo">Baringo</option>
+        <option value="Bomet">Bomet</option>
+        <option value="Bungoma">Bungoma</option>
+        <option value="Busia">Busia</option>
+        <option value="Elgeyo Marakwet">Elgeyo Marakwet</option>
+        <option value="Embu">Embu</option>
+        <option value="Garissa">Garissa</option>
+        <option value="Homa Bay">Homa Bay</option>
+        <option value="Isiolo">Isiolo</option>
+        <option value="Kajiado">Kajiado</option>
+        <option value="Kakamega">Kakamega</option>
+        <option value="Kericho">Kericho</option>
+        <option value="Kiambu">Kiambu</option>
+        <option value="Kilifi">Kilifi</option>
+        <option value="Kirinyaga">Kirinyaga</option>
+        <option value="Kisii">Kisii</option>
+        <option value="Kisumu">Kisumu</option>
+        <option value="Kitui">Kitui</option>
+        <option value="Kwale">Kwale</option>
+        <option value="Laikipia">Laikipia</option>
+        <option value="Lamu">Lamu</option>
+        <option value="Machakos">Machakos</option>
+        <option value="Makueni">Makueni</option>
+        <option value="Mandera">Mandera</option>
+        <option value="Marsabit">Marsabit</option>
+        <option value="Meru">Meru</option>
+        <option value="Migori">Migori</option>
+        <option value="Mombasa">Mombasa</option>
+        <option value="Murang'a">Murang'a</option>
+        <option value="Nairobi">Nairobi</option>
+        <option value="Nakuru">Nakuru</option>
+        <option value="Nandi">Nandi</option>
+        <option value="Narok">Narok</option>
+        <option value="Nyamira">Nyamira</option>
+        <option value="Nyandarua">Nyandarua</option>
+        <option value="Nyeri">Nyeri</option>
+        <option value="Samburu">Samburu</option>
+        <option value="Siaya">Siaya</option>
+        <option value="Taita Taveta">Taita Taveta</option>
+        <option value="Tana River">Tana River</option>
+        <option value="Tharaka Nithi">Tharaka Nithi</option>
+        <option value="Trans Nzoia">Trans Nzoia</option>
+        <option value="Turkana">Turkana</option>
+        <option value="Uasin Gishu">Uasin Gishu</option>
+        <option value="Vihiga">Vihiga</option>
+        <option value="Wajir">Wajir</option>
+        <option value="West Pokot">West Pokot</option>
+      </select>
+    </div>
+
+    <button class="btn" id="signup-btn" onclick="signUp()" disabled>Sign Up</button>
+    <button class="btn social-btn">Continue with Facebook</button>
+
+    <div class="signin-link">
+      Already have an account? <a href="MechLogIn.html">Sign In</a>
+    </div>
+  </div>
+  <script>
+    // Enable the Sign Up button only if a county is selected
+    const countySelect = document.getElementById('county');
+    const signupBtn = document.getElementById('signup-btn');
+    countySelect.addEventListener('change', function() {
+      signupBtn.disabled = countySelect.value === "";
+    });
+
+    function signUp() {
+      if (countySelect.value !== "") {
+        window.location.href = 'MechVerify.html';
+      }
+    }
+  </script>
+</body>
+</html>

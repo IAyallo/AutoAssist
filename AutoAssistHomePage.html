@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutoAssist | Home</title>
+  <style>
+    :root {
+      --primary-color: #3ce0aa;
+      --primary-hover: #34c398;
+      --text-dark: #333;
+      --text-light: #fff;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--primary-color);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background-position 0.1s ease-out;
+    }
+
+    .logo-bar {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      display: flex;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .logo-bar img {
+      height: 48px;
+      width: 48px;
+    }
+
+    .home-container {
+      background-color: var(--card-bg);
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      color: var(--text-dark);
+      width: 360px;
+      z-index: 5;
+      position: relative;
+    }
+
+    .home-container h1 {
+      font-size: 2.2em;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+
+    .home-container p {
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    .links {
+      margin: 30px 0 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .link-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--primary-color);
+      color: var(--text-light);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: transform 0.2s ease, background-color 0.3s;
+    }
+
+    .link-btn:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.05);
+    }
+
+    .contacts {
+      position: absolute;
+      bottom: 20px;
+      text-align: center;
+      color: var(--text-light);
+      font-size: 1em;
+      padding: 0 20px;
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 500px) {
+      .home-container {
+        width: 90vw;
+        padding: 30px 20px;
+      }
+
+      .logo-bar {
+        left: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo-bar">
+    <img src="tool_icon.jpg" alt="AutoAssist Logo" />
+  </div>
+
+  <div class="home-container">
+    <h1>Welcome to AutoAssist</h1>
+    <p>Your one-stop solution for car management and assistance.</p>
+    <div class="links">
+      <a href="Loading.html" class="link-btn">Need a Mechanic?</a>
+      <a href="MechLoading.html" class="link-btn">Want to work for us?</a>
+    </div>
+  </div>
+
+  <div class="contacts">
+    Contacts: Ishmael Ayallo, Israel Mshindi, Hamza Malasa, Derrick Gitonga, Collins Waweru, Jibril Jafar
+  </div>
+
+  <script>
+    // Parallax cursor movement effect
+    document.body.addEventListener('mousemove', (e) => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      document.body.style.backgroundPosition = `${x * 20}px ${y * 20}px`;
+    });
+  </script>
+
+</body>
+</html>
