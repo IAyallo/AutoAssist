@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f3f4f6;
+    }
+    header {
+      background-color: #1f2937;
+      color: white;
+      padding: 1rem;
+      font-size: 1.5rem;
+    }
+    .container { display: flex; }
+    .sidebar {
+      width: 220px;
+      background-color: #111827;
+      color: white;
+      padding-top: 1rem;
+      min-height: 100vh;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar ul li {
+      padding: 1rem;
+      cursor: pointer;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background-color: #374151;
+    }
+    .main {
+      flex: 1;
+      padding: 2rem;
+    }
+    .section {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: none;
+    }
+    .section.active { display: block; }
+    h2 { margin-top: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      text-align: left;
+    }
+    th { background-color: #f9fafb; }
+  </style>
+</head>
+<body>
+  <header>Admin Dashboard</header>
+  <div class="container">
+    <aside class="sidebar">
+      <ul>
+        <li onclick="showSection('running')">Running Services</li>
+        <li onclick="showSection('user')">User Management</li>
+        <li onclick="showSection('payments')">Payments</li>
+      </ul>
+    </aside>
+    <main class="main">
+      <div id="running" class="section">
+        <h2>Running Services</h2>
+        <h3>Pending Services</h3>
+        <table>
+          <tr><th>ID</th><th>Service</th><th>Status</th></tr>
+          <!-- Rows to be filled dynamically -->
+        </table>
+        <h3>Completed Services</h3>
+        <table>
+          <tr><th>ID</th><th>Service</th><th>Completed On</th></tr>
+        </table>
+      </div>
+
+      <div id="user" class="section">
+        <h2>User Management</h2>
+        <h3>Mechanics</h3>
+        <table>
+          <tr><th>Name</th><th>Rating</th><th>Total Services</th><th>Location</th><th>Actions</th></tr>
+        </table>
+        <h3>Users</h3>
+        <table>
+          <tr><th>Name</th><th>Service History</th><th>Actions</th></tr>
+        </table>
+      </div>
+
+      <div id="payments" class="section">
+        <h2>Payments</h2>
+        <h3>Previous Withdrawals</h3>
+        <table>
+          <tr><th>User</th><th>Amount</th><th>Date</th></tr>
+        </table>
+        <h3>Pending Withdrawals</h3>
+        <table>
+          <tr><th>User</th><th>Amount</th><th>Status</th></tr>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+  </script>
+</body>
+</html>
