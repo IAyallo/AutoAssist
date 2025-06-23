@@ -18,6 +18,7 @@
             <span class="nav-logo-text">AUTOASSIST</span>
         </div>
         <div class="nav-user">
+            <button class="nav-btn" id="logout-btn">Logout</button>
             <div class="nav-avatar" id="user-avatar"></div>
         </div>
     </nav>
@@ -96,6 +97,14 @@
                 document.getElementById('car-details').textContent = 
                     `${carMake} ${carModel} (${carYear}) - ${numberPlate}`;
             }
+
+            // Logout button functionality
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('carRegistered');
+                window.location.href = 'index.html';
+            });
         });
     </script>
 </body>
