@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoAssist - Service Request</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .map-container {
+            height: 300px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+        }
+        .leaflet-container {
+            height: 100%;
+            width: 100%;
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-logo">
+            <div class="nav-logo-icon">
+                <img src="tool_icon.jpg" alt="AutoAssist Logo" class="logo-image">
+            </div>
+            <span class="nav-logo-text">AUTOASSIST</span>
+        </div>
+        <div class="nav-user">
+            <div class="nav-avatar" id="user-avatar"></div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="service-flow">
+            <div class="step-indicator">
+                <div class="step active" id="step1-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Request</div>
+                </div>
+                <div class="step" id="step2-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Location</div>
+                </div>
+                <div class="step" id="step3-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Confirmation</div>
+                </div>
+                <div class="step" id="step4-indicator">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Tracking</div>
+                </div>
+                <div class="step" id="step5-indicator">
+                    <div class="step-number">5</div>
+                    <div class="step-label">Completion</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Service Request -->
+            <div class="card" id="step1">
+                <h3 class="card-title">Service Request</h3>
+                <p>Describe the problem with your car</p>
+                <form id="service-request-form">
+                    <div class="form-group">
+                        <label for="service-type">Service Type</label>
+                        <select id="service-type" required>
+                            <option value="" disabled selected>Select service type</option>
+                            <option value="breakdown">Breakdown Assistance</option>
+                            <option value="tire">Tire Change</option>
+                            <option value="battery">Battery Jumpstart</option>
+                            <option value="fuel">Fuel Delivery</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="problem-description">Problem Description</label>
+                        <textarea id="problem-description" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Request Mechanic</button>
+                </form>
+            </div>
+
+            <!-- Step 2: Location -->
+            <div class="card" id="step2" style="display:none;">
+                <h3 class="card-title">Confirm Your Location</h3>
+                <p>Check if the map shows your correct location</p>
+                <div class="map-container">
+                    <div id="map-location"></div>
+                </div>
+                <button id="confirm-location" class="btn btn-primary">Confirm Location</button>
+            </div>
+
+            <!-- Step 3: Confirmation -->
+            <div class="card" id="step3" style="display:none;">
+                <h3 class="card-title">Service Confirmation</h3>
+                <div class="mechanic-info">
+                    <p><strong>Mechanic:</strong> James M. (4.2 ★★★★☆)</p>
+                    <p><strong>ETA:</strong> 15-20 minutes</p>
+                    <p><strong>Price Estimate:</strong> KES 2,500</p>
+                </div>
+                <div class="btn-group">
+                    <button id="confirm-no" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-yes" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Tracking -->
+            <div class="card" id="step4" style="display:none;">
+                <h3 class="card-title">Mechanic En Route</h3>
+                <div class="map-container">
+                    <div id="map-tracking"></div>
+                </div>
+                <div class="tracking-info">
+                    <p><strong>ETA:</strong> <span id="eta-display">8</span> minutes</p>
+                    <p><strong>Distance:</strong> <span id="distance-display">2.5</span> km</p>
+                </div>
+                <button id="service-started" class="btn btn-primary" disabled>Mechanic Has Arrived</button>
+            </div>
+
+            <!-- Step 5: Completion -->
+            <div class="card" id="step5" style="display:none;">
+                <h3 class="card-title">Service Completed</h3>
+                <div class="payment-info">
+                    <p><strong>Service:</strong> Battery Replacement</p>
+                    <p><strong>Amount:</strong> KES 3,200</p>
+                </div>
+                <div class="form-group">
+                    <label>Rate Your Experience</label>
+                    <div class="rating">
+                        <span class="rating-star">★</span>
+                        <span class="rating-star">★</span>
+                        <span class="rating-star">★</span>
+                        <span class="rating-star">★</span>
+                        <span class="rating-star">★</span>
+                    </div>
+                </div>
+                <button id="complete-service" class="btn btn-primary">Complete & Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let locationMap, trackingMap;
+        let userMarker, mechanicMarker;
+        let userLocation, mechanicLocation;
+        let etaInterval;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const userName = localStorage.getItem('userName') || 'User';
+            document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
+
+            // Step 1: Service Request
+            document.getElementById('service-request-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                showStep(2);
+                initLocationMap();
+            });
+
+            // Step 2: Location
+            document.getElementById('confirm-location').addEventListener('click', function() {
+                showStep(3);
+            });
+
+            // Step 3: Confirmation
+            document.getElementById('confirm-yes').addEventListener('click', function() {
+                showStep(4);
+                initTrackingMap();
+                setTimeout(() => {
+                    document.getElementById('service-started').disabled = false;
+                }, 5000);
+            });
+            
+            document.getElementById('confirm-no').addEventListener('click', function() {
+                alert('Service request cancelled');
+                window.location.href = 'home.html';
+            });
+
+            // Step 4: Tracking
+            document.getElementById('service-started').addEventListener('click', function() {
+                showStep(5);
+                clearInterval(etaInterval);
+            });
+
+            // Step 5: Rating
+            const stars = document.querySelectorAll('.rating-star');
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    stars.forEach((s, i) => {
+                        s.classList.toggle('active', i <= index);
+                    });
+                });
+            });
+
+            // Complete Service
+            document.getElementById('complete-service').addEventListener('click', function() {
+                alert('Thank you for using AutoAssist!');
+                window.location.href = 'home.html';
+            });
+        });
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.display = 'none';
+            });
+            document.getElementById('step' + stepNumber).style.display = 'block';
+
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            
+            for (let i = 1; i <= stepNumber; i++) {
+                const step = document.getElementById('step' + i + '-indicator');
+                if (i < stepNumber) {
+                    step.classList.add('completed');
+                } else {
+                    step.classList.add('active');
+                }
+            }
+        }
+
+        function initLocationMap() {
+            locationMap = L.map('map-location').setView([-1.286389, 36.817223], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(locationMap);
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        userLocation = [position.coords.latitude, position.coords.longitude];
+                        locationMap.setView(userLocation, 15);
+                        L.marker(userLocation).addTo(locationMap);
+                        document.getElementById('confirm-location').disabled = false;
+                    },
+                    () => {
+                        document.getElementById('confirm-location').disabled = false;
+                    }
+                );
+            } else {
+                document.getElementById('confirm-location').disabled = false;
+            }
+        }
+
+        function initTrackingMap() {
+            if (!userLocation) userLocation = [-1.286389, 36.817223];
+            
+            trackingMap = L.map('map-tracking').setView(userLocation, 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(trackingMap);
+            
+            L.marker(userLocation).addTo(trackingMap);
+            
+            mechanicLocation = [userLocation[0] + 0.01, userLocation[1] + 0.01];
+            mechanicMarker = L.marker(mechanicLocation, {
+                icon: L.divIcon({
+                    className: 'mechanic-icon',
+                    html: '🔧',
+                    iconSize: [30, 30]
+                })
+            }).addTo(trackingMap);
+
+            let eta = 8;
+            etaInterval = setInterval(() => {
+                mechanicLocation[0] -= 0.0005;
+                mechanicLocation[1] -= 0.0005;
+                mechanicMarker.setLatLng(mechanicLocation);
+                
+                eta = Math.max(1, eta - 1);
+                document.getElementById('eta-display').textContent = eta;
+                
+                if (Math.abs(mechanicLocation[0] - userLocation[0]) < 0.0005) {
+                    document.getElementById('service-started').disabled = false;
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

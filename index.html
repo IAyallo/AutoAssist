@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoAssist - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen">
+        <div class="splash-logo">
+            <img src="tool_icon.jpg" alt="AutoAssist Logo">
+        </div>
+        <h1 class="splash-title">AUTOASSIST</h1>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-form" id="login-form" style="display: none;">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="tool_icon.jpg" alt="AutoAssist Logo" class="logo-image">
+                </div>
+                <h1>AUTOASSIST</h1>
+                <p>Car assistance when you need it</p>
+            </div>
+            
+            <form id="login-form-data">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" name="email" placeholder="john@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            
+            <div class="text-center" style="margin-top: 20px;">
+                <p>Don't have an account? <a href="#" class="link" id="show-signup">Sign up</a></p>
+            </div>
+        </div>
+
+        <div class="auth-form" id="signup-form">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="tool_icon.jpg" alt="AutoAssist Logo" class="logo-image">
+                </div>
+                <h1>AUTOASSIST</h1>
+                <p>Create your account</p>
+            </div>
+            
+            <form id="registration-form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="0712345678" required pattern="[0-9]{10}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required minlength="8">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </form>
+            
+            <div class="text-center" style="margin-top: 20px;">
+                <p>Already have an account? <a href="#" class="link" id="show-login">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show signup form after splash screen
+        setTimeout(() => {
+            document.getElementById('signup-form').style.display = 'block';
+        }, 2500);
+
+        // Toggle between login and signup forms
+        document.getElementById('show-signup').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'block';
+        });
+
+        document.getElementById('show-login').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        });
+
+        // Password confirmation validation
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm-password');
+        
+        function validatePassword() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity("Passwords don't match");
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+        
+        password.onchange = validatePassword;
+        confirmPassword.onkeyup = validatePassword;
+
+        // Registration form handler
+        document.getElementById('registration-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Store user data
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPassword', password);
+            localStorage.setItem('isAuthenticated', 'true');
+            
+            // Redirect to car registration
+            window.location.href = 'car-register.html';
+        });
+
+        // Login form handler
+        document.getElementById('login-form-data').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // In a real app, this would verify against your backend
+            const storedEmail = localStorage.getItem('userEmail');
+            const storedPassword = localStorage.getItem('userPassword');
+            
+            if(email === storedEmail && password === storedPassword) {
+                localStorage.setItem('isAuthenticated', 'true');
+                
+                // Check if car is registered
+                if(localStorage.getItem('carRegistered') === 'true') {
+                    window.location.href = 'home.html';
+                } else {
+                    window.location.href = 'car-register.html';
+                }
+            } else {
+                alert('Invalid email or password');
+            }
+        });
+    </script>
+</body>
+</html>

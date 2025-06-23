@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoAssist - Register Car</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-logo">
+            <div class="nav-logo-icon">
+                <div class="tool-icon">
+                    <div class="wrench"></div>
+                    <div class="screwdriver"></div>
+                </div>
+            </div>
+            <span class="nav-logo-text">AUTOASSIST</span>
+        </div>
+        <div class="nav-user">
+            <div class="nav-avatar" id="user-avatar"></div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="service-flow">
+            <div class="step-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Car Details</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Complete</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Register Your Car</h3>
+                <p>Please provide your car details to continue</p>
+
+                <form id="car-register-form">
+                    <div class="form-group">
+                        <label for="car-make">Car Make</label>
+                        <input type="text" id="car-make" name="car-make" placeholder="e.g., Toyota" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="car-model">Car Model</label>
+                        <input type="text" id="car-model" name="car-model" placeholder="e.g., Corolla" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="car-year">Year of Production</label>
+                        <input type="number" id="car-year" name="car-year" min="1900" max="2025" placeholder="2020" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="car-color">Color</label>
+                        <input type="text" id="car-color" name="car-color" placeholder="e.g., Red" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="number-plate">Number Plate</label>
+                        <input type="text" id="number-plate" name="number-plate" placeholder="KAA 123A" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Register Car</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is authenticated
+        if(localStorage.getItem('isAuthenticated') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // Set user avatar initials
+        document.addEventListener('DOMContentLoaded', function() {
+            const userName = localStorage.getItem('userName');
+            const initials = userName ? userName.split(' ').map(n => n[0]).join('') : '';
+            document.getElementById('user-avatar').textContent = initials;
+        });
+
+        document.getElementById('car-register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Store car data
+            const carMake = document.getElementById('car-make').value;
+            const carModel = document.getElementById('car-model').value;
+            const carYear = document.getElementById('car-year').value;
+            const carColor = document.getElementById('car-color').value;
+            const numberPlate = document.getElementById('number-plate').value;
+            
+            localStorage.setItem('carMake', carMake);
+            localStorage.setItem('carModel', carModel);
+            localStorage.setItem('carYear', carYear);
+            localStorage.setItem('carColor', carColor);
+            localStorage.setItem('numberPlate', numberPlate);
+            localStorage.setItem('carRegistered', 'true');
+            
+            // Redirect to home with welcome message
+            window.location.href = 'home.html?welcome=true';
+        });
+    </script>
+</body>
+</html>
