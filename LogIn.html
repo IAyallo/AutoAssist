@@ -39,7 +39,7 @@
       color: #444;
     }
 
-    input[type="email"], input[type="password"] {
+    input[type="email"], input[type="password"], input[type="text"] {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
@@ -84,17 +84,18 @@
   <div class="login-container">
     <h2>Welcome Back</h2>
 
-    <div class="input-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="you@example.com" />
-    </div>
+    <form action="process_user_login.php" method="POST">
+      <div class="input-group">
+        <label for="phone">Phone Number</label>
+        <input type="text" id="phone" name="phone" placeholder="0712345678" required />
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="********" required />
+      </div>
+      <button class="btn" type="submit">Log In</button>
+    </form>
 
-    <div class="input-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="********" />
-    </div>
-
-    <button class="btn">Log In</button>
     <button class="btn social-btn">Continue with Facebook</button>
 
     <div class="signup-link">

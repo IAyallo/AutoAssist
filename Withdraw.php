@@ -1,0 +1,226 @@
+<?php
+session_start();
+if (!isset($_SESSION['mech_name'])) {
+    header("Location: MechLogIn.html");
+    exit;
+}
+$mech_name = $_SESSION['mech_name'];
+$profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Withdraw - AutoAssist</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #f4f4f4;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #3ce0aa;
+      display: flex;
+      flex-direction: column;
+      padding-top: 40px;
+      color: white;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 15px 25px;
+      font-weight: bold;
+      display: block;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #34c99a;
+      border-left: 5px solid white;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .balance-section {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .balance-section h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .withdraw-btn {
+      padding: 10px 20px;
+      background-color: #3ce0aa;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .transaction-list {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .transaction-item {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .transaction-item:last-child {
+      border-bottom: none;
+    }
+
+    .transaction-item strong {
+      display: block;
+      color: #222;
+    }
+
+    .popup, .success-popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .popup-content, .success-content {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      width: 320px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .popup-content select, .popup-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .popup-content button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: #3ce0aa;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="MechHomePage.php" class="active">🏠 Home</a>
+    <a href="Withdraw.php">💳 Withdraw</a>
+    <a href="History.php">📜 History</a>
+    <form action="logout.php" method="post" style="margin-top:30px; padding:0 25px;">
+      <button type="submit" style="width:100%; background:#fff; color:#3ce0aa; border:none; border-radius:8px; padding:12px; font-weight:bold; cursor:pointer; margin-top:10px;">
+        🚪 Logout
+      </button>
+    </form>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="header">
+      <div class="greeting">Hello, <?php echo htmlspecialchars($mech_name); ?></div>
+      <img src="profile.jpg" alt="Profile Picture" class="profile-pic">
+    <div class="balance-section">
+      <h2>Current Balance: KES 12,450</h2>
+      <button class="withdraw-btn" onclick="showWithdrawPopup()">Withdraw</button>
+    </div>
+
+    <div class="transaction-list">
+      <h3>Recent Transactions</h3>
+      <div class="transaction-item">
+        <strong>Withdrawal - KES 2,000</strong>
+        <span>MPesa • 15 June 2025</span>
+      </div>
+      <div class="transaction-item">
+        <strong>Payment - KES 3,500</strong>
+        <span>Oil Change • 13 June 2025</span>
+      </div>
+      <div class="transaction-item">
+        <strong>Withdrawal - KES 1,500</strong>
+        <span>Bank • 10 June 2025</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdraw Popup -->
+  <div class="popup" id="withdraw-popup">
+    <div class="popup-content">
+      <h3>Withdraw Funds</h3>
+      <input type="number" placeholder="Enter amount (KES)" id="amount">
+      <select id="method" onchange="toggleInputs()">
+        <option value="">Select Method</option>
+        <option value="mpesa">📱 MPesa</option>
+        <option value="bank">🏦 Bank Account</option>
+      </select>
+      <input type="text" id="mpesa" placeholder="Enter MPesa Number" style="display:none;">
+      <input type="text" id="bank" placeholder="Enter Bank Account Details" style="display:none;">
+      <button onclick="confirmWithdraw()">Confirm</button>
+    </div>
+  </div>
+
+  <!-- Success Popup -->
+  <div class="success-popup" id="success-popup">
+    <div class="success-content">
+      <h1>🎉</h1>
+      <h3>Payment will be processed within 5 working hours</h3>
+    </div>
+  </div>
+
+  <script>
+    function showWithdrawPopup() {
+      document.getElementById('withdraw-popup').style.display = 'flex';
+    }
+
+    function toggleInputs() {
+      const method = document.getElementById('method').value;
+      document.getElementById('mpesa').style.display = method === 'mpesa' ? 'block' : 'none';
+      document.getElementById('bank').style.display = method === 'bank' ? 'block' : 'none';
+    }
+
+    function confirmWithdraw() {
+      document.getElementById('withdraw-popup').style.display = 'none';
+      document.getElementById('success-popup').style.display = 'flex';
+      setTimeout(() => {
+        window.location.href = 'MechHomePage.php';
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
