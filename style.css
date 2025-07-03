@@ -504,6 +504,94 @@ input:focus, select:focus, textarea:focus {
     color: var(--danger);
 }
 
+/* Mechanic Card */
+.mechanic-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 16px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mechanic-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.mechanic-name {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.mechanic-locality {
+    color: #888;
+    font-size: 0.95em;
+}
+
+.select-mechanic-btn {
+    background: var(--primary, #3ce0aa);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.select-mechanic-btn:hover {
+    background: var(--primary-dark, #2bbd8c);
+}
+
+/* Mechanic Table */
+.mechanic-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.mechanic-table th, .mechanic-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.mechanic-table th {
+    background-color: var(--primary);
+    color: var(--white);
+    font-weight: 600;
+}
+
+.mechanic-table tr {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.mechanic-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+.mechanic-table tr.selected {
+    background-color: #e0fff4;
+    font-weight: bold;
+}
+
+.select-btn {
+    background: var(--primary, #3ce0aa);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.select-btn.selected {
+    background: var(--primary-dark, #2bbd8c);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .form-row {

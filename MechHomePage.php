@@ -213,6 +213,8 @@ $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
         <span>10 June 2025 – South B</span>
       </div>
     </div>
+
+    <div id="pending-requests"></div>
   </div>
 
   <!-- Request Popup -->
@@ -229,13 +231,39 @@ $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
       document.getElementById('request-popup').style.display = 'block';
     }, 10000);
 
-    function acceptRequest() {
-      window.location.href = 'request.html';
+    function acceptRequest(service_id) {
+      fetch('accept_request.php', {
+        method: 'POST',
+        body: new URLSearchParams({service_id})
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          // Update UI, show confirmation, etc.
+        }
+      });
     }
 
     function rejectRequest() {
       document.getElementById('request-popup').style.display = 'none';
     }
+
+    // Fetch pending requests from the server
+    fetch('get_pending_requests.php')
+      .then(res => res.json())
+      .then(requests => {
+        const container = document.getElementById('pending-requests');
+        container.innerHTML = '';
+        requests.forEach(req => {
+          const div = document.createElement('div');
+          div.innerHTML = `
+            <strong>${req.user_name}</strong> - ${req.car_type} ${req.car_model} (${req.number_plate})<br>
+            Service: ${req.service_name} | Location: ${req.locality}
+            <button onclick="acceptRequest(${req.service_id})">Accept</button>
+          `;
+          container.appendChild(div);
+        });
+      });
   </script>
 
 </body>

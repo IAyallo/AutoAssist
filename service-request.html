@@ -96,15 +96,22 @@
             <!-- Step 3: Confirmation -->
             <div class="card" id="step3" style="display:none;">
                 <h3 class="card-title">Service Confirmation</h3>
-                <div class="mechanic-info">
-                    <p><strong>Mechanic:</strong> James M. (4.2 ★★★★☆)</p>
-                    <p><strong>ETA:</strong> 15-20 minutes</p>
-                    <p><strong>Price Estimate:</strong> KES 2,500</p>
-                </div>
+                
                 <div class="btn-group">
                     <button id="confirm-no" class="btn btn-secondary">Cancel</button>
                     <button id="confirm-yes" class="btn btn-primary">Confirm</button>
                 </div>
+                <div class="mechanic-list" id="mechanic-list"></div>
+                <table class="mechanic-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Locality</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mechanic-table-body"></tbody>
+                </table>
             </div>
 
             <!-- Step 4: Tracking -->
@@ -142,16 +149,27 @@
         </div>
     </div>
 
+    <input type="hidden" id="userPhone" name="userPhone">
+    <input type="hidden" id="car_id" name="car_id">
+    <input type="hidden" id="locality" name="locality">
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         let locationMap, trackingMap;
         let userMarker, mechanicMarker;
         let userLocation, mechanicLocation;
         let etaInterval;
+        let CURRENT_SERVICE_ID = null;
+        let selectedMechanicId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             const userName = localStorage.getItem('userName') || 'User';
             document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
+
+            // Load user details
+            document.getElementById('userPhone').value = localStorage.getItem('userPhone');
+            document.getElementById('car_id').value = localStorage.getItem('selectedCar'); // or from your car dropdown
+            document.getElementById('locality').value = "Nairobi"; // or get from map/geolocation if available
 
             // Step 1: Service Request
             document.getElementById('service-request-form').addEventListener('submit', function(e) {
@@ -162,7 +180,45 @@
 
             // Step 2: Location
             document.getElementById('confirm-location').addEventListener('click', function() {
-                showStep(3);
+                // Set hidden fields
+                document.getElementById('userPhone').value = localStorage.getItem('userPhone');
+                document.getElementById('car_id').value = localStorage.getItem('selectedCar');
+                document.getElementById('locality').value = "Nairobi"; // or get dynamically
+
+                // Get service type and problem description
+                const service_type = document.getElementById('service-type').value;
+                const problem_description = document.getElementById('problem-description').value;
+
+                // Get user location if available
+                let latitude = userLocation ? userLocation[0] : '';
+                let longitude = userLocation ? userLocation[1] : '';
+
+                console.log('userPhone:', localStorage.getItem('userPhone'));
+                console.log('car_id:', localStorage.getItem('selectedCar'));
+                console.log('service_type:', service_type);
+
+                const formData = new FormData();
+                formData.append('userPhone', localStorage.getItem('userPhone'));
+                formData.append('car_id', localStorage.getItem('selectedCar'));
+                formData.append('service_type', service_type);
+                formData.append('problem_description', problem_description);
+                formData.append('locality', "Nairobi"); // or use actual locality
+                formData.append('latitude', latitude);
+                formData.append('longitude', longitude);
+
+                fetch('process_service_request.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        CURRENT_SERVICE_ID = data.service_id; // Save the ID for later
+                        showStep(3);
+                    } else {
+                        alert(data.message || 'Failed to submit request.');
+                    }
+                });
             });
 
             // Step 3: Confirmation
@@ -200,6 +256,29 @@
                 alert('Thank you for using AutoAssist!');
                 window.location.href = 'home.html';
             });
+
+            // Load available mechanics
+            fetch('get_available_mechanics.php')
+              .then(res => res.json())
+              .then(mechanics => {
+                const tbody = document.getElementById('mechanic-table-body');
+                tbody.innerHTML = '';
+                mechanics.forEach(mech => {
+                  const tr = document.createElement('tr');
+                  tr.innerHTML = `
+                    <td class="mech-name">${mech.name}</td>
+                    <td>${mech.locality}</td>
+                    <td><button class="select-btn">Select</button></td>
+                  `;
+                  // Select mechanic when row or name is clicked
+                  tr.querySelector('.mech-name').onclick = () => selectMechanic(mech.mech_id, tr);
+                  tr.querySelector('.select-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    selectMechanic(mech.mech_id, tr);
+                  };
+                  tbody.appendChild(tr);
+                });
+              });
         });
 
         function showStep(stepNumber) {
@@ -276,6 +355,34 @@
                     document.getElementById('service-started').disabled = false;
                 }
             }, 3000);
+        }
+
+        function selectMechanic(mech_id, row) {
+          // Remove selection from all rows
+          document.querySelectorAll('.mechanic-table tr.selected').forEach(tr => tr.classList.remove('selected'));
+          document.querySelectorAll('.select-btn.selected').forEach(btn => btn.classList.remove('selected'));
+          // Highlight selected row and button
+          row.classList.add('selected');
+          row.querySelector('.select-btn').classList.add('selected');
+          selectedMechanicId = mech_id;
+          // Optionally, immediately assign or enable a "Confirm Mechanic" button
+          assignMechanicToRequest(mech_id);
+        }
+
+        function assignMechanicToRequest(mech_id) {
+          // Send AJAX to update the service row with the selected mechanic
+          fetch('assign_mechanic.php', {
+            method: 'POST',
+            body: new URLSearchParams({
+              service_id: CURRENT_SERVICE_ID, // get this from your flow
+              mech_id: mech_id
+            })
+          }).then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                alert('Mechanic assigned!');
+              }
+            });
         }
     </script>
 </body>

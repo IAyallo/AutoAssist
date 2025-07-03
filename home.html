@@ -30,10 +30,19 @@
         </div>
 
         <div class="card">
-            <h3 class="card-title">
-                <span class="icon" style="mask-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M19 17h2c.55 0 1-.45 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.3 16 10 16 10s-1.3-2-3-2H5c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h2\'%3E%3C/path%3E%3Ccircle cx=\'7\' cy=\'18\' r=\'2\'%3E%3C/circle%3E%3Cpath d=\'M9 18h6\'%3E%3C/path%3E%3Ccircle cx=\'17\' cy=\'18\' r=\'2\'%3E%3C/circle%3E%3C/svg%3E');"></span>
-                My Car
-            </h3>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <h3 class="card-title" style="margin: 0;">
+                    <span class="icon" style="mask-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M19 17h2c.55 0 1-.45 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.3 16 10 16 10s-1.3-2-3-2H5c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h2\'%3E%3C/path%3E%3Ccircle cx=\'7\' cy=\'18\' r=\'2\'%3E%3C/circle%3E%3Cpath d=\'M9 18h6\'%3E%3C/path%3E%3Ccircle cx=\'17\' cy=\'18\' r=\'2\'%3E%3C/circle%3E%3C/svg%3E');"></span>
+                    My Car
+                </h3>
+                <button id="add-car-btn" class="btn btn-primary" style="margin-left: 10px; font-size: 0.9em;">+ Add Car</button>
+            </div>
+            <div style="margin: 10px 0;">
+                <label for="car-select"><strong>Select Car:</strong></label>
+                <select id="car-select" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                    <option value="">Loading...</option>
+                </select>
+            </div>
             <p id="car-details">No car registered</p>
             <a href="car-register.html" class="link" style="display: inline-block; margin-top: 10px;">Edit car details</a>
         </div>
@@ -72,9 +81,8 @@
         const urlParams = new URLSearchParams(window.location.search);
         if(urlParams.has('welcome')) {
             const userName = localStorage.getItem('userName');
-            alert(`Welcome to AutoAssist, ${userName}!`);
-            // Remove the parameter from URL
-            window.history.replaceState({}, document.title, "/home.html");
+            // alert(`Welcome to AutoAssist, ${userName}!`); // Remove or comment out this line
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
 
         // Update displayed user info
@@ -105,7 +113,104 @@
                 localStorage.removeItem('carRegistered');
                 window.location.href = 'index.html';
             });
+
+            // Fetch cars from the database
+            const userPhone = localStorage.getItem('userPhone');
+            fetch('get_user_cars.php?userPhone=' + encodeURIComponent(userPhone))
+                .then(response => response.json())
+                .then(cars => {
+                    const carSelect = document.getElementById('car-select');
+                    carSelect.innerHTML = '';
+                    if (cars.length === 0) {
+                        carSelect.innerHTML = '<option value="">No car registered</option>';
+                        document.getElementById('car-details').textContent = 'No car registered';
+                        return;
+                    }
+                    cars.forEach(car => {
+                        const opt = document.createElement('option');
+                        opt.value = car.car_id; // Use car_id, not index
+                        opt.textContent = `${car.car_type} ${car.car_model} (${car.car_year}) - ${car.number_plate}`;
+                        carSelect.appendChild(opt);
+                    });
+                    // Show details for the first car by default
+                    showCarDetails(cars[0]);
+                    carSelect.addEventListener('change', function() {
+                        const selectedCarId = this.value;
+                        localStorage.setItem('selectedCar', selectedCarId);
+                        const selected = cars.find(c => c.car_id == selectedCarId);
+                        showCarDetails(selected);
+                    });
+                });
+
+            function showCarDetails(car) {
+                if (car) {
+                    document.getElementById('car-details').textContent =
+                        `${car.car_type} (${car.car_year}) - ${car.number_plate}, ${car.car_colour}`;
+                }
+            }
+        });
+        
+        function getCars() {
+            return JSON.parse(localStorage.getItem('cars') || '[]');
+        }
+        function saveCars(cars) {
+            localStorage.setItem('cars', JSON.stringify(cars));
+        }
+        function populateCarDropdown() {
+            const cars = getCars();
+            const carSelect = document.getElementById('car-select');
+            carSelect.innerHTML = '';
+            if (cars.length === 0) {
+                document.getElementById('car-details').textContent = 'No car registered';
+                return;
+            }
+            cars.forEach((car, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${car.car_make} ${car.car_model} (${car.car_year}) - ${car.number_plate}`;
+                carSelect.appendChild(opt);
+            });
+            showCarDetails(carSelect.value);
+        }
+        function showCarDetails(idx) {
+            const cars = getCars();
+            if (cars[idx]) {
+                const car = cars[idx];
+                document.getElementById('car-details').textContent =
+                    `${car.car_make} ${car.car_model} (${car.car_year}) - ${car.number_plate}`;
+                localStorage.setItem('selectedCar', carSelect.value);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            populateCarDropdown();
+            document.getElementById('car-select').addEventListener('change', function() {
+                showCarDetails(this.value);
+            });
+            document.getElementById('add-car-btn').addEventListener('click', function() {
+                window.location.href = 'car-register.html';
+            });
+            const selectedIdx = localStorage.getItem('selectedCar');
+            if (selectedIdx && document.getElementById('car-select').options.length > selectedIdx) {
+                document.getElementById('car-select').selectedIndex = selectedIdx;
+                showCarDetails(selectedIdx);
+            }
+            }
+        )
+
+        const mechList = document.getElementById('mechanic-list');
+        mechList.innerHTML = '';
+        mechanics.forEach(mech => {
+            const card = document.createElement('div');
+            card.className = 'mechanic-card';
+            card.innerHTML = `
+                <div class="mechanic-info">
+                    <div class="mechanic-name">${mech.name}</div>
+                    <div class="mechanic-locality">${mech.locality}</div>
+                </div>
+                <button class="select-mechanic-btn">Select</button>
+            `;
+            card.querySelector('.select-mechanic-btn').onclick = () => assignMechanicToRequest(mech.mech_id);
+            mechList.appendChild(card);
         });
     </script>
-</body>
-</html>
+</body></html>
