@@ -1,0 +1,8 @@
+COMPLETE_SERVICE CALLED
+COMPLETE_SERVICE CALLED
+COMPLETE_SERVICE CALLED
+Array
+(
+    [service_id] => 24
+    [rating] => 5
+)

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service History - AutoAssist</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .history-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 30px;
+        }
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        .service-card {
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .service-title {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .service-meta {
+            color: #888;
+            font-size: 0.95em;
+        }
+        .back-btn {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-logo">
+            <div class="nav-logo-icon">
+                <img src="tool_icon.jpg" alt="AutoAssist Logo" class="logo-image">
+            </div>
+            <span class="nav-logo-text">AUTOASSIST</span>
+        </div>
+        <div class="nav-user">
+            <button class="nav-btn" id="logout-btn">Logout</button>
+            <div class="nav-avatar" id="user-avatar"></div>
+        </div>
+    </nav>
+    <div class="history-container">
+        <button class="btn btn-secondary back-btn" onclick="window.location.href='home.html'">&#8592; Back</button>
+        <div class="history-header">
+            <h2>Service History</h2>
+        </div>
+        <div id="service-history-list">Loading...</div>
+    </div>
+    <script>
+    // Set user avatar
+    const userName = localStorage.getItem('userName');
+    const initials = userName ? userName.split(' ').map(n => n[0]).join('') : '';
+    document.getElementById('user-avatar').textContent = initials;
+
+    // Logout button
+    document.getElementById('logout-btn').addEventListener('click', function() {
+        localStorage.clear();
+        window.location.href = 'AutoAssistHomePage.html';
+    });
+
+    // Fetch and display service history
+    const userPhone = localStorage.getItem('userPhone');
+    fetch('get_service_history.php?userPhone=' + encodeURIComponent(userPhone))
+        .then(res => res.json())
+        .then(history => {
+            const list = document.getElementById('service-history-list');
+            if (history.length === 0) {
+                list.innerHTML = '<p>No service history found.</p>';
+                return;
+            }
+            list.innerHTML = history.map(item => `
+                <div class="service-card">
+                    <div class="service-title">${item.service_name} <span class="service-meta">(${item.time_served})</span></div>
+                    <div>Car: ${item.car_type} ${item.car_model} (${item.number_plate})</div>
+                    <div>Mechanic: ${item.mechanic_name}</div>
+                    <div>Locality: ${item.locality}</div>
+                    <div>Rating: ${item.rating ?? 'N/A'}</div>
+                </div>
+            `).join('');
+        })
+        .catch(() => {
+            document.getElementById('service-history-list').innerHTML = '<p>Error loading service history.</p>';
+        });
+    </script>
+</body>
+</html> 

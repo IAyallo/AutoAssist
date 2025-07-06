@@ -1,11 +1,46 @@
 <?php
 session_start();
-if (!isset($_SESSION['mech_name'])) {
+if (!isset($_SESSION['mech_name']) || !isset($_SESSION['mech_id'])) {
     header("Location: MechLogIn.html");
     exit;
 }
 $mech_name = $_SESSION['mech_name'];
+$mech_id = $_SESSION['mech_id'];
 $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
+
+// Helper function for service price
+function getServicePrice($service_name) {
+    $prices = [
+        'Breakdown Assistance' => 2000,
+        'Tire Change' => 1500,
+        'Battery Jumpstart' => 1800,
+        'Fuel Delivery' => 1200,
+        'Other' => 1000
+    ];
+    foreach ($prices as $key => $val) {
+        if (stripos($service_name, $key) !== false) return $val;
+    }
+    return 1000; // default for unknown
+}
+
+require 'connection.php';
+// Fetch all services for this mechanic
+$stmt = $conn->prepare("SELECT service_name, time_served, locality FROM service WHERE mech_id = ? ORDER BY time_served DESC");
+$stmt->bind_param("i", $mech_id);
+$stmt->execute();
+$stmt->bind_result($service_name, $time_served, $locality);
+$history = [];
+while ($stmt->fetch()) {
+    $amount = getServicePrice($service_name);
+    $history[] = [
+        'service_name' => $service_name,
+        'amount' => $amount,
+        'time_served' => $time_served,
+        'locality' => $locality
+    ];
+}
+$stmt->close();
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -81,6 +116,21 @@ $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
       border: 2px solid white;
     }
 
+    .profile-pic.initials-avatar {
+      background: #34c99a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      font-weight: bold;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      object-fit: cover;
+    }
+
     .service-history {
       background: white;
       padding: 20px;
@@ -144,34 +194,28 @@ $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
   <div class="main">
     <div class="header">
       <div class="greeting">Hello, <?php echo htmlspecialchars($mech_name); ?></div>
-      <img src="profile.jpg" alt="Profile Picture" class="profile-pic">
+      <div class="profile-pic initials-avatar"><?php
+        $initials = '';
+        foreach (explode(' ', $mech_name) as $n) { $initials .= strtoupper($n[0]); }
+        echo htmlspecialchars($initials);
+      ?></div>
     </div>
 
     <div class="service-history">
       <h3>Service History & Earnings</h3>
-      <div class="history-item">
-        <div>
-          <div class="service-name">Brake Repair</div>
-          <div class="service-date">15 June 2025 – Kilimani</div>
-        </div>
-        <div class="service-amount">KES 2,500</div>
-      </div>
-
-      <div class="history-item">
-        <div>
-          <div class="service-name">Oil Change</div>
-          <div class="service-date">13 June 2025 – Nairobi CBD</div>
-        </div>
-        <div class="service-amount">KES 1,500</div>
-      </div>
-
-      <div class="history-item">
-        <div>
-          <div class="service-name">Flat Tire Replacement</div>
-          <div class="service-date">10 June 2025 – South B</div>
-        </div>
-        <div class="service-amount">KES 1,200</div>
-      </div>
+      <?php if (empty($history)): ?>
+        <div class="history-item">No service history yet.</div>
+      <?php else: ?>
+        <?php foreach ($history as $item): ?>
+          <div class="history-item">
+            <div>
+              <div class="service-name"><?php echo htmlspecialchars($item['service_name']); ?></div>
+              <div class="service-date"><?php echo date('d M Y', strtotime($item['time_served'])); ?> – <?php echo htmlspecialchars($item['locality']); ?></div>
+            </div>
+            <div class="service-amount">KES <?php echo number_format($item['amount']); ?></div>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
   </div>
 </body>

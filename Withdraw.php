@@ -1,11 +1,69 @@
 <?php
 session_start();
-if (!isset($_SESSION['mech_name'])) {
+if (!isset($_SESSION['mech_name']) || !isset($_SESSION['mech_id'])) {
     header("Location: MechLogIn.html");
     exit;
 }
 $mech_name = $_SESSION['mech_name'];
+$mech_id = $_SESSION['mech_id'];
 $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
+
+// Helper function for service price
+function getServicePrice($service_name) {
+    $prices = [
+        'Breakdown Assistance' => 2000,
+        'Tire Change' => 1500,
+        'Battery Jumpstart' => 1800,
+        'Fuel Delivery' => 1200,
+        'Other' => 1000
+    ];
+    foreach ($prices as $key => $val) {
+        if (stripos($service_name, $key) !== false) return $val;
+    }
+    return 1000; // default for unknown
+}
+
+require 'connection.php';
+// Calculate balance: sum of all service earnings - sum of all withdrawals
+$balance = 0;
+$transactions = [];
+// Get all services for this mechanic
+$stmt = $conn->prepare("SELECT service_name, time_served, locality FROM service WHERE mech_id = ? ORDER BY time_served DESC");
+$stmt->bind_param("i", $mech_id);
+$stmt->execute();
+$stmt->bind_result($service_name, $time_served, $locality);
+while ($stmt->fetch()) {
+    $amount = getServicePrice($service_name);
+    $balance += $amount;
+    $transactions[] = [
+        'type' => 'service',
+        'desc' => $service_name,
+        'amount' => $amount,
+        'date' => $time_served,
+        'locality' => $locality
+    ];
+}
+$stmt->close();
+// Get all withdrawals for this mechanic
+$stmt = $conn->prepare("SELECT withdrawal_amt, withdrawal_method, date FROM withdrawal WHERE mech_id = ? ORDER BY date DESC");
+$stmt->bind_param("i", $mech_id);
+$stmt->execute();
+$stmt->bind_result($withdrawal_amt, $withdrawal_method, $withdrawal_date);
+while ($stmt->fetch()) {
+    $balance -= $withdrawal_amt;
+    $transactions[] = [
+        'type' => 'withdrawal',
+        'desc' => $withdrawal_method,
+        'amount' => $withdrawal_amt,
+        'date' => $withdrawal_date
+    ];
+}
+$stmt->close();
+$conn->close();
+// Sort transactions by date descending
+usort($transactions, function($a, $b) {
+    return strtotime($b['date']) - strtotime($a['date']);
+});
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -137,6 +195,21 @@ $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
       font-weight: bold;
       cursor: pointer;
     }
+
+    .profile-pic.initials-avatar {
+      background: #34c99a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      font-weight: bold;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
@@ -156,26 +229,33 @@ $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
   <div class="main">
     <div class="header">
       <div class="greeting">Hello, <?php echo htmlspecialchars($mech_name); ?></div>
-      <img src="profile.jpg" alt="Profile Picture" class="profile-pic">
+      <div class="profile-pic initials-avatar"><?php
+        $initials = '';
+        foreach (explode(' ', $mech_name) as $n) { $initials .= strtoupper($n[0]); }
+        echo htmlspecialchars($initials);
+      ?></div>
     <div class="balance-section">
-      <h2>Current Balance: KES 12,450</h2>
+      <h2>Current Balance: KES <?php echo number_format(max(0, $balance)); ?></h2>
       <button class="withdraw-btn" onclick="showWithdrawPopup()">Withdraw</button>
     </div>
 
     <div class="transaction-list">
       <h3>Recent Transactions</h3>
-      <div class="transaction-item">
-        <strong>Withdrawal - KES 2,000</strong>
-        <span>MPesa • 15 June 2025</span>
-      </div>
-      <div class="transaction-item">
-        <strong>Payment - KES 3,500</strong>
-        <span>Oil Change • 13 June 2025</span>
-      </div>
-      <div class="transaction-item">
-        <strong>Withdrawal - KES 1,500</strong>
-        <span>Bank • 10 June 2025</span>
-      </div>
+      <?php if (empty($transactions)): ?>
+        <div class="transaction-item">No transactions yet.</div>
+      <?php else: ?>
+        <?php foreach ($transactions as $txn): ?>
+          <div class="transaction-item">
+            <?php if ($txn['type'] === 'service'): ?>
+              <strong>Service - <?php echo htmlspecialchars($txn['desc']); ?> (KES <?php echo number_format($txn['amount']); ?>)</strong>
+              <span><?php echo htmlspecialchars($txn['locality']); ?> • <?php echo date('d M Y', strtotime($txn['date'])); ?></span>
+            <?php else: ?>
+              <strong>Withdrawal - KES <?php echo number_format($txn['amount']); ?></strong>
+              <span><?php echo htmlspecialchars($txn['desc']); ?> • <?php echo date('d M Y', strtotime($txn['date'])); ?></span>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -215,11 +295,28 @@ $profile_pic = $_SESSION['mech_profile_pic'] ?? 'profile.jpg';
     }
 
     function confirmWithdraw() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const method = document.getElementById('method').value;
+      if (!amount || !method) {
+        alert('Please enter amount and select method.');
+        return;
+      }
       document.getElementById('withdraw-popup').style.display = 'none';
-      document.getElementById('success-popup').style.display = 'flex';
-      setTimeout(() => {
-        window.location.href = 'MechHomePage.php';
-      }, 4000);
+      fetch('process_withdrawal.php', {
+        method: 'POST',
+        body: new URLSearchParams({ amount, method })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('success-popup').style.display = 'flex';
+          setTimeout(() => {
+            window.location.href = 'MechHomePage.php';
+          }, 4000);
+        } else {
+          alert(data.message || 'Withdrawal failed.');
+        }
+      });
     }
   </script>
 </body>

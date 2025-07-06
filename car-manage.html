@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Car - AutoAssist</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .manage-container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 30px;
+        }
+        .manage-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        .manage-header h2 {
+            margin: 0;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-back {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-logo">
+            <div class="nav-logo-icon">
+                <img src="tool_icon.jpg" alt="AutoAssist Logo" class="logo-image">
+            </div>
+            <span class="nav-logo-text">AUTOASSIST</span>
+        </div>
+        <div class="nav-user">
+            <button class="nav-btn" id="logout-btn">Logout</button>
+            <div class="nav-avatar" id="user-avatar"></div>
+        </div>
+    </nav>
+
+    <div class="manage-container">
+        <button class="btn btn-secondary btn-back" onclick="window.location.href='home.html'">&#8592; Back</button>
+        <div class="manage-header">
+            <h2>Edit Car Details</h2>
+        </div>
+        <form id="edit-car-form">
+            <div class="form-group">
+                <label for="car_type">Car Type</label>
+                <input type="text" id="car_type" name="car_type" required>
+            </div>
+            <div class="form-group">
+                <label for="car_model">Car Model</label>
+                <input type="text" id="car_model" name="car_model" required>
+            </div>
+            <div class="form-group">
+                <label for="car_year">Year</label>
+                <input type="text" id="car_year" name="car_year" required>
+            </div>
+            <div class="form-group">
+                <label for="car_colour">Color</label>
+                <input type="text" id="car_colour" name="car_colour" required>
+            </div>
+            <div class="form-group">
+                <label for="number_plate">Number Plate</label>
+                <input type="text" id="number_plate" name="number_plate" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top:10px;">Update Car</button>
+        </form>
+        <button id="delete-car-btn" class="btn btn-danger" style="margin-top:20px; width:100%;">Delete Car</button>
+    </div>
+
+    <script>
+        // Fetch car details
+    fetch('get_user_cars.php?userPhone=' + encodeURIComponent(localStorage.getItem('userPhone')))
+        .then(response => response.json())
+        .then(cars => {
+            const carId = localStorage.getItem('selectedCar');
+            const car = cars.find(c => c.car_id == carId);
+            if (!car) {
+                alert('Car not found.');
+                window.location.href = 'home.html';
+                return;
+            }
+            document.getElementById('car_type').value = car.car_type;
+            document.getElementById('car_model').value = car.car_model;
+            document.getElementById('car_year').value = car.car_year;
+            document.getElementById('car_colour').value = car.car_colour;
+            document.getElementById('number_plate').value = car.number_plate;
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const carId = localStorage.getItem('selectedCar');
+
+            // Set user avatar
+            const userName = localStorage.getItem('userName');
+            const initials = userName ? userName.split(' ').map(n => n[0]).join('') : '';
+            document.getElementById('user-avatar').textContent = initials;
+
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.clear();
+                window.location.href = 'AutoAssistHomePage.html';
+            });
+
+            // Fetch car details
+            fetch('get_user_cars.php?userPhone=' + encodeURIComponent(localStorage.getItem('userPhone')))
+                .then(res => res.json())
+                .then(cars => {
+                    const car = cars.find(c => c.car_id == carId);
+                    if (!car) {
+                        alert('Car not found.');
+                        window.location.href = 'home.html';
+                        return;
+                    }
+                    document.getElementById('car_type').value = car.car_type;
+                    document.getElementById('car_model').value = car.car_model;
+                    document.getElementById('car_year').value = car.car_year;
+                    document.getElementById('car_colour').value = car.car_colour;
+                    document.getElementById('number_plate').value = car.number_plate;
+                });
+
+            // Handle update
+document.getElementById('edit-car-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    formData.append('car_id', carId);
+    fetch('update_car.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Car updated successfully!');
+            window.location.href = 'home.html';
+        } else {
+            alert(data.message || 'Failed to update car.');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating car:', error);
+        alert('Error updating car. Please try again.');
+    });
+});
+
+// Handle delete
+document.getElementById('delete-car-btn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to delete this car?')) {
+        fetch('delete_car.php', {
+            method: 'POST',
+            body: new URLSearchParams({car_id: carId})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Car deleted.');
+                window.location.href = 'home.html';
+            } else {
+                alert(data.message || 'Failed to delete car.');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting car:', error);
+            alert('Error deleting car. Please try again.');
+        });
+    }
+});
+
+            
+        });
+    </script>

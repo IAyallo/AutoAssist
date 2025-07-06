@@ -144,7 +144,7 @@
                         <span class="rating-star">★</span>
                     </div>
                 </div>
-                <button id="complete-service" class="btn btn-primary">Complete & Pay</button>
+                <button type="button" id="complete-service" class="btn btn-primary">Complete & Pay</button>
             </div>
         </div>
     </div>
@@ -161,6 +161,7 @@
         let etaInterval;
         let CURRENT_SERVICE_ID = null;
         let selectedMechanicId = null;
+        let selectedRating = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
             const userName = localStorage.getItem('userName') || 'User';
@@ -193,10 +194,6 @@
                 let latitude = userLocation ? userLocation[0] : '';
                 let longitude = userLocation ? userLocation[1] : '';
 
-                console.log('userPhone:', localStorage.getItem('userPhone'));
-                console.log('car_id:', localStorage.getItem('selectedCar'));
-                console.log('service_type:', service_type);
-
                 const formData = new FormData();
                 formData.append('userPhone', localStorage.getItem('userPhone'));
                 formData.append('car_id', localStorage.getItem('selectedCar'));
@@ -213,7 +210,8 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        CURRENT_SERVICE_ID = data.service_id; // Save the ID for later
+                        CURRENT_SERVICE_ID = data.service_id;
+                        localStorage.setItem('currentServiceId', CURRENT_SERVICE_ID); // Store for later use
                         showStep(3);
                     } else {
                         alert(data.message || 'Failed to submit request.');
@@ -245,6 +243,7 @@
             const stars = document.querySelectorAll('.rating-star');
             stars.forEach((star, index) => {
                 star.addEventListener('click', () => {
+                    selectedRating = index + 1;
                     stars.forEach((s, i) => {
                         s.classList.toggle('active', i <= index);
                     });
@@ -252,9 +251,32 @@
             });
 
             // Complete Service
-            document.getElementById('complete-service').addEventListener('click', function() {
-                alert('Thank you for using AutoAssist!');
-                window.location.href = 'home.html';
+            document.getElementById('complete-service').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (selectedRating === 0) {
+                    alert('Please rate your experience before completing.');
+                    return;
+                }
+                // Always use the service ID from localStorage for robustness
+                const serviceIdToSubmit = CURRENT_SERVICE_ID || localStorage.getItem('currentServiceId');
+                alert('Submitting service_id: ' + serviceIdToSubmit + ', rating: ' + selectedRating);
+                fetch('complete_service.php', {
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        service_id: serviceIdToSubmit,
+                        rating: selectedRating
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.removeItem('currentServiceId'); // Clean up after completion
+                        alert('Thank you for using AutoAssist!');
+                        window.location.href = 'home.html';
+                    } else {
+                        alert(data.message || 'Failed to complete service.');
+                    }
+                });
             });
 
             // Load available mechanics

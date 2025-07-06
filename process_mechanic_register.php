@@ -1,38 +1,42 @@
 <?php
 require 'connection.php';
-session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $conn->real_escape_string($_POST['name'] ?? '');
     $phone = $conn->real_escape_string($_POST['phone'] ?? '');
+    $email = $conn->real_escape_string($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
+    $locality = $conn->real_escape_string($_POST['county'] ?? '');
 
-    if (empty($phone) || empty($password)) {
-        echo "Phone number and password are required.";
+    if (empty($name) || empty($phone) || empty($email) || empty($password) || empty($locality)) {
+        echo "All fields are required.";
         exit;
     }
 
-    $stmt = $conn->prepare("SELECT mech_id, name, password FROM mechanic WHERE phone = ?");
-    $stmt->bind_param("s", $phone);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows === 1) {
-        $stmt->bind_result($mech_id, $name, $password_hash);
-        $stmt->fetch();
-
-        if (password_verify($password, $password_hash)) {
-            // Store mechanic info in session
-            $_SESSION['mech_id'] = $mech_id;
-            $_SESSION['mech_name'] = $name;
-            header("Location: MechHomePage.php"); // Change to .php
-            exit;
-        } else {
-            echo "Invalid password.";
-        }
-    } else {
-        echo "Mechanic not found or invalid credentials.";
+    // Check if email or phone already exists
+    $check = $conn->prepare("SELECT mech_id FROM mechanic WHERE email = ? OR phone = ?");
+    $check->bind_param("ss", $email, $phone);
+    $check->execute();
+    $check->store_result();
+    if ($check->num_rows > 0) {
+        echo "Mechanic with this email or phone already exists.";
+        exit;
     }
+    $check->close();
 
+    // Hash password
+    $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+    // Insert new mechanic
+    $stmt = $conn->prepare("INSERT INTO mechanic (name, phone, email, locality, password) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $name, $phone, $email, $locality, $password_hash);
+
+    if ($stmt->execute()) {
+        header('Location: MechLogIn.html');
+        exit;
+    } else {
+        echo "Registration failed. Please try again.";
+    }
     $stmt->close();
     $conn->close();
 } else {
