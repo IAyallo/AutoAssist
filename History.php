@@ -24,14 +24,13 @@ function getServicePrice($service_name) {
 }
 
 require 'connection.php';
-// Fetch all services for this mechanic
-$stmt = $conn->prepare("SELECT service_name, time_served, locality FROM service WHERE mech_id = ? ORDER BY time_served DESC");
+// Fetch all services for this mechanic, including payment amount
+$stmt = $conn->prepare("SELECT s.service_name, s.time_served, s.locality, p.payment FROM service s JOIN payment p ON s.service_id = p.service_id WHERE s.mech_id = ? ORDER BY s.time_served DESC");
 $stmt->bind_param("i", $mech_id);
 $stmt->execute();
-$stmt->bind_result($service_name, $time_served, $locality);
+$stmt->bind_result($service_name, $time_served, $locality, $amount);
 $history = [];
 while ($stmt->fetch()) {
-    $amount = getServicePrice($service_name);
     $history[] = [
         'service_name' => $service_name,
         'amount' => $amount,

@@ -6,7 +6,7 @@ $stmt = $conn->prepare("SELECT s.service_id, s.user_id, s.car_id, s.service_name
     FROM service s
     JOIN user u ON s.user_id = u.user_id
     JOIN usercar c ON s.car_id = c.car_id
-    WHERE s.mech_id IS NULL OR s.status = 'pending'
+    WHERE s.mech_id IS NULL AND s.status = 'pending'
     ORDER BY s.time_served ASC");
 $stmt->execute();
 $stmt->bind_result($service_id, $user_id, $car_id, $service_name, $locality, $time_served, $user_name, $car_type, $car_model, $number_plate);

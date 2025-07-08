@@ -6,3 +6,39 @@ Array
     [service_id] => 24
     [rating] => 5
 )
+COMPLETE_SERVICE CALLED
+Array
+(
+    [service_id] => 25
+    [rating] => 5
+)
+COMPLETE_SERVICE CALLED
+Array
+(
+    [service_id] => 26
+    [rating] => 5
+)
+COMPLETE_SERVICE CALLED
+Array
+(
+    [service_id] => 27
+    [rating] => 5
+)
+COMPLETE_SERVICE CALLED
+Array
+(
+    [service_id] => 28
+    [rating] => 5
+)
+COMPLETE_SERVICE CALLED
+Array
+(
+    [service_id] => 29
+    [rating] => 5
+)
+COMPLETE_SERVICE CALLED
+Array
+(
+    [service_id] => 31
+    [rating] => 5
+)

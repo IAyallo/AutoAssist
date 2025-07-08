@@ -293,6 +293,24 @@ $conn->close();
 
     // On page load, fetch pending requests
     fetchPendingRequests();
+
+    function acceptRequest(service_id) {
+      fetch('accept_request.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'service_id=' + encodeURIComponent(service_id)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          fetchPendingRequests(); // Refresh the list
+          alert('Service accepted!');
+        } else {
+          alert('Failed to accept: ' + (data.message || 'Unknown error'));
+        }
+      })
+      .catch(err => alert('Error: ' + err));
+    }
   </script>
 
 </body>
