@@ -1,12 +1,10 @@
 # AutoAssist
-# AutoAssist
 
 AutoAssist is a web-based platform designed to streamline roadside assistance services. It connects users with mechanics and service providers, allowing for efficient request management, car registration, and administrative oversight.
 
 ## Features
 
 - User registration and login
-
 - Car registration and management
 - Service request creation and tracking
 - Mechanic assignment and navigation
