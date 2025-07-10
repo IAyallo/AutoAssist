@@ -1,6 +1,6 @@
 -- Before running this schema, make sure to create and use your database:
--- CREATE DATABASE IF NOT EXISTS autoassist_db;
--- USE autoassist_db;
+CREATE DATABASE IF NOT EXISTS autoassist_db;
+USE autoassist_db;
 
 CREATE TABLE `user` (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
