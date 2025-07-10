@@ -21,7 +21,7 @@ AutoAssist is a web-based platform designed to streamline roadside assistance se
 
 1. **Clone the repository**  
    ```
-   git clone <repository-url>
+   git clone <https://github.com/IAyallo/AutoAssist.git>
    ```
 
 2. **Set up the database**  
